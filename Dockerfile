@@ -4,11 +4,19 @@ FROM osrf/ros:jazzy-desktop
 
 # Update package lists and install required tools
 RUN apt-get update && apt-get install -y \
+    python3-rosdep \
     libcpprest-dev \
     python3-venv \
     python3-pip \
     python3-colcon-common-extensions \
     && rm -rf /var/lib/apt/lists/*
+
+# Initialize rosdep
+RUN rosdep update
+
+# Install std_msgs package
+RUN apt-get install -y \
+    ros-jazzy-std-msgs
 
 # Set up a virtual environment for Python packages
 RUN python3 -m venv /opt/ros/env

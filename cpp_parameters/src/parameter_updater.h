@@ -1,67 +1,49 @@
-// MyClass.h
+// ParameterUpdater.h
 #ifndef PARAMETER_UPDATER_H
 #define PARAMETER_UPDATER_H
 
-#include <rclcpp/rclcpp.hpp>
-#include <cpprest/http_client.h>
-#include <cpprest/http_listener.h>
-#include <cpprest/json.h>
 #include <iostream>
+#include <functional>
+
+#include <rclcpp/rclcpp.hpp>
+#include <rclcpp_components/register_node_macro.hpp>
+#include <cpprest/http_client.h>
+#include <cpprest/json.h>
+#include <std_msgs/msg/string.hpp>
+
+using namespace std::chrono_literals;
 
 using namespace web;
 using namespace web::http;
 using namespace web::http::client;
-using namespace web::http::experimental::listener;
 
 class ParameterUpdater : public rclcpp::Node
 {
 public:
-    ParameterUpdater() : Node("parameter_updater")
+    ParameterUpdater(const rclcpp::NodeOptions &options) : Node("parameter_updater", options)
     {
+        // Create the ROS subscriber
+        subscription_ = this->create_subscription<std_msgs::msg::String>(
+            "parameter_update", 10,
+            std::bind(&ParameterUpdater::parameterUpdateCallback, this, std::placeholders::_1));
+
         http_client_config client_config;
         client_ = std::make_unique<http_client>("http://localhost:5000", client_config);
-
-        // Set up the HTTP listener
-        http_listener_ = std::make_unique<http_listener>("http://0.0.0.0:6000/update_parameters");
-        http_listener_->support(methods::POST, std::bind(&ParameterUpdater::handle_post, this, std::placeholders::_1));
-        http_listener_->open().wait();
-    }
-
-    ~ParameterUpdater()
-    {
-        http_listener_->close().wait();
     }
 
 private:
     std::unique_ptr<http_client> client_;
-    std::unique_ptr<http_listener> http_listener_;
+    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription_;
 
-    void handle_post(http_request request)
+    void parameterUpdateCallback(const std_msgs::msg::String::SharedPtr msg)
     {
-        request.extract_json().then([=](json::value request_body)
-                                    {
-            try
-            {
-                // Check if the trigger_update flag is set to true
-                bool trigger_update = request_body[U("trigger_update")].as_bool();
-                if (trigger_update)
-                {
-                    // Fetch parameters from the web service
-                    fetch_parameters();
-                }
+        RCLCPP_INFO(this->get_logger(), "Received parameter update event");
 
-                // Respond with success
-                request.reply(status_codes::OK, U("Parameters updated successfully"));
-            }
-            catch (const std::exception &e)
-            {
-                // Respond with error
-                request.reply(status_codes::BadRequest, U("Failed to update parameters: ") + utility::conversions::to_string_t(e.what()));
-            } })
-            .wait();
+        // Fetch parameters from the web server
+        fetchParameters();
     }
 
-    void fetch_parameters()
+    void fetchParameters()
     {
         // Make an HTTP GET request to the Flask route "/hello"
         client_->request(methods::GET, U("/hello")).then([this](http_response response)
@@ -72,20 +54,42 @@ private:
                 response.extract_json().then([this](json::value response_body) {
                     try
                     {
-                        // Extract parameters from the JSON response
-                        auto hello = response_body[U("hello")];
-                        for (auto const &param : hello.as_array())
+                        // Check if the response is an array
+                        if (response_body.is_array())
                         {
-                             web::json::value paramCopy = param;
+                            auto parameter_array = response_body.as_array();
+
+                            // Iterate over each parameter object in the array
+                            for (const auto& param : parameter_array)
+                            {
+                                // Check if the parameter object has the required fields
+                                if (param.has_field(U("description")) && param.has_field(U("my_parameter")))
+                                {
+                                    web::json::value paramCopy = param;
     
-                            std::string description = paramCopy[U("description")].as_string();
-                            std::string my_parameter = paramCopy[U("my_parameter")].as_string();
-                            // Store the parameters as needed
-                            RCLCPP_INFO(this->get_logger(), "Received parameter: %s = %s", description.c_str(), my_parameter.c_str());
+                                    std::string description = paramCopy[U("description")].as_string();
+                                    std::string my_parameter = paramCopy[U("my_parameter")].as_string();
+
+                                    // Output the received parameter
+                                    RCLCPP_INFO(this->get_logger(), "Received parameter: %s = %s", "description", description.c_str());
+                                    RCLCPP_INFO(this->get_logger(), "Received parameter: %s = %s", "my_parameter",  my_parameter.c_str());
+                                }
+                                else
+                                {
+                                    // Log an error if any required fields are missing
+                                    RCLCPP_ERROR(this->get_logger(), "Parameter object is missing required fields");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Log an error if the response is not an array
+                            RCLCPP_ERROR(this->get_logger(), "JSON response is not an array");
                         }
                     }
                     catch (const std::exception &e)
                     {
+                        // Log an error if there is an exception while parsing JSON
                         RCLCPP_ERROR(this->get_logger(), "Failed to parse JSON response: %s", e.what());
                     }
                 }).wait();
@@ -97,5 +101,7 @@ private:
             .wait();
     }
 };
+
+RCLCPP_COMPONENTS_REGISTER_NODE(ParameterUpdater)
 
 #endif

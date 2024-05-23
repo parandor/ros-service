@@ -19,30 +19,45 @@ public:
 
     this->declare_parameter("my_parameter", "world");
 
-    timer_= this->create_wall_timer(
-        1000ms, std::bind(&MinimalParam::timer_callback, this));
+    // timer_= this->create_wall_timer(
+    //     1000ms, std::bind(&MinimalParam::timer_callback, this));
+        
   }
 
-  void timer_callback()
-  {
-    std::string my_param = this->get_parameter("my_parameter").as_string();
+  // void timer_callback()
+  // {
+  //   std::string my_param = this->get_parameter("my_parameter").as_string();
     
-    RCLCPP_INFO(this->get_logger(), "Hello %s!", my_param.c_str());
+  //   RCLCPP_INFO(this->get_logger(), "Hello %s!", my_param.c_str());
 
-    std::vector<rclcpp::Parameter> all_new_parameters{rclcpp::Parameter("my_parameter", "world")};
-    this->set_parameters(all_new_parameters);
-  }
+  //   std::vector<rclcpp::Parameter> all_new_parameters{rclcpp::Parameter("my_parameter", "world")};
+  //   this->set_parameters(all_new_parameters);
+  // }
 
 private:
-  rclcpp::TimerBase::SharedPtr timer_;
+  // rclcpp::TimerBase::SharedPtr timer_;
+  std::shared_ptr<ParameterUpdater> updater_;
 };
 
 int main(int argc, char ** argv)
 {
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<MinimalParam>());
-    auto node = std::make_shared<ParameterUpdater>();
-    rclcpp::spin(node);
+    // Create the MinimalParam node
+    auto minimal_param_node = std::make_shared<MinimalParam>();
+
+    // Create the ParameterUpdater node
+    auto options = rclcpp::NodeOptions();
+    auto updater_node = std::make_shared<ParameterUpdater>(options);
+
+    // Spin ParameterUpdater node on a separate thread
+    std::thread updater_thread([updater_node]() {
+        rclcpp::spin(updater_node);
+    });
+
+    rclcpp::spin(minimal_param_node);
+    // Wait for the updater_thread to finish
+    //TODO: add clean shutdown
+    updater_thread.join();
     rclcpp::shutdown();
     return 0;
 }

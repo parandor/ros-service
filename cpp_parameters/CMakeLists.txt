@@ -8,13 +8,20 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)  # Add this line
+find_package(std_msgs REQUIRED)
+
 # Find and link against cpprestsdk library
 find_package(cpprestsdk REQUIRED)
 add_executable(minimal_param_node src/cpp_parameters_node.cpp)
-ament_target_dependencies(minimal_param_node rclcpp cpprestsdk)
+ament_target_dependencies(minimal_param_node rclcpp std_msgs cpprestsdk rclcpp_components)
 
 find_package(OpenSSL REQUIRED)
 target_link_libraries(minimal_param_node OpenSSL::SSL OpenSSL::Crypto)
+
+include_directories(
+  ${std_msgs_INCLUDE_DIRS}
+)
 
 if(cpprestsdk_FOUND)
   # Add cpprestsdk include directories
