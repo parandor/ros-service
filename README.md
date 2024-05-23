@@ -1,35 +1,48 @@
-Challenge: 
+# Challenge: 
 
 The research team have developed a new locus_ai component for our robots to detect butterflies in real-time. Parameters for the butterfly model are available on from a web-service running in the cloud. 
 
-How would you (in a few hours) extend the bringup to enable real-time reconfiguration of the detection system? What suggestions can you make for larger changes in the system architecture?
-How do your changes make the reconfiguration process smoother or more reliable?
+## How to Extend Bringup for Real-Time Reconfiguration
 
+1. **Enable Real-Time Reconfiguration**: Implement communication between the ROS 2 nodes and the web service to fetch updated parameters in real-time.
 
+2. **Dynamic Reconfiguration**: Integrate ROS 2's dynamic reconfigure package to allow nodes to adjust their behavior based on parameter updates.
 
-Design Assumptions: 
+3. **Node Restart Mechanism**: Implement a mechanism for nodes to gracefully restart when necessary to apply new parameters.
 
-Assume that robots are resource constrained, battery powered, and on an unreliable wi-fi network. 
-Assume that the Flask webserver is running in the cloud and the robots are running on a client network behind a NAT/firewall. 
-The client network will have multiple robots, for this scenario assume 2 robots are deployed. 
-Finally, a single robot will have hundereds of nodes that will be requiring parameters
+## Suggestions for Larger Changes in System Architecture
 
-Included within this folder is a sample ROS2 project as well as a Flask web-service to help get you started in your design. Please see the README on its execution.
-The sample contains a service that defaults with a "Hello World" parameter, as well as a launch.py file that injects a new parameter on launch. Please feel free to adjust this accordingly as you see fit. 
+1. **Decentralized Parameter Management**: Distribute parameter management across multiple nodes to reduce load and improve scalability.
 
-Guidelines: 
+2. **Offline Parameter Caching**: Implement offline caching of parameters on robots to handle intermittent connectivity issues.
 
-1) Please do not go too overboard with your solution, however it should try and cover the main points. 
-2) Should ideally take a couple of hours. 
-3) Provide some level explanation on your solution as well as how to run it.
-4) BONUS: 
-    a) Leverage docker to setup/bring-up the individual nodes
-    b) How would your design extend to support hundreds of robots on a client network
+3. **Edge Computing**: Explore edge computing solutions to offload parameter processing tasks from resource-constrained robots.
 
-Build:
+# Design Assumptions:
+
+- Robots are resource constrained, battery powered, and on an unreliable Wi-Fi network.
+- The Flask webserver is running in the cloud, and robots are behind a NAT/firewall in a client network.
+- Multiple robots are deployed in the client network.
+- A single robot will have hundereds of nodes that will be requiring parameters
+- The client network will have multiple robots. For this scenario assume 2 robots are deployed.
+
+# Included Samples:
+
+A sample ROS2 project and Flask web-service are provided. Please see the README for execution instructions.
+
+# Guidelines:
+
+1. Please do not go too overboard with your solution, however it should try and cover the main points.
+2. Aim for completion within a couple of hours.
+3. Provide explanation on the solution and how to run it.
+4. Bonus: 
+    - Use Docker to set up and bring up individual nodes.
+    - Extend design to support hundreds of robots on a client network.
+
+## Build:
 
 `docker build -t ros2_service_project .`
 
-Run:
+## Run:
 
 `docker run -it --rm ros2_service_project`
