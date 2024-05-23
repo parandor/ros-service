@@ -5,7 +5,7 @@ The research team have developed a new locus_ai component for our robots to dete
 How would you (in a few hours) extend the bringup to enable real-time reconfiguration of the detection system? What suggestions can you make for larger changes in the system architecture?
 How do your changes make the reconfiguration process smoother or more reliable?
 
- 
+
 
 Design Assumptions: 
 
@@ -25,3 +25,11 @@ Guidelines:
 4) BONUS: 
     a) Leverage docker to setup/bring-up the individual nodes
     b) How would your design extend to support hundreds of robots on a client network
+
+Build:
+
+`docker build -t ros2_service_project .`
+
+Run:
+
+`docker run -it --rm ros2_service_project`
