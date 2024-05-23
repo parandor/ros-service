@@ -46,3 +46,7 @@ A sample ROS2 project and Flask web-service are provided. Please see the README 
 ## Run:
 
 `docker run -it --rm ros2_service_project`
+
+## Trigger Configuration Update:
+
+`curl -X POST -H "Content-Type: application/json" -d '{"trigger_update": true}' http://localhost:6000/update_parameters`

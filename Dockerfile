@@ -4,6 +4,7 @@ FROM osrf/ros:jazzy-desktop
 
 # Update package lists and install required tools
 RUN apt-get update && apt-get install -y \
+    libcpprest-dev \
     python3-venv \
     python3-pip \
     python3-colcon-common-extensions \
@@ -13,10 +14,11 @@ RUN apt-get update && apt-get install -y \
 RUN python3 -m venv /opt/ros/env
 
 # Activate the virtual environment and install Flask
-RUN /bin/bash -c "source /opt/ros/env/bin/activate && pip install --upgrade pip && pip install Flask"
+RUN /bin/bash -c "source /opt/ros/env/bin/activate && pip install --upgrade pip && pip install Flask pyyaml numpy"
 
 # For testing, expose port
 EXPOSE 5000
+EXPOSE 6000
 
 # Copy your ROS 2 workspace into the container
 # Assuming your workspace is named "ros2_ws"

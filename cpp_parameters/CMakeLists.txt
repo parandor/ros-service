@@ -8,8 +8,23 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+# Find and link against cpprestsdk library
+find_package(cpprestsdk REQUIRED)
 add_executable(minimal_param_node src/cpp_parameters_node.cpp)
-ament_target_dependencies(minimal_param_node rclcpp)
+ament_target_dependencies(minimal_param_node rclcpp cpprestsdk)
+
+find_package(OpenSSL REQUIRED)
+target_link_libraries(minimal_param_node OpenSSL::SSL OpenSSL::Crypto)
+
+if(cpprestsdk_FOUND)
+  # Add cpprestsdk include directories
+  include_directories(${cpprestsdk_INCLUDE_DIRS})
+
+  # Add cpprestsdk libraries
+  target_link_libraries(minimal_param_node ${cpprestsdk_LIBRARIES} cpprestsdk::cpprest)
+else()
+  message(FATAL_ERROR "cpprestsdk not found. Install libcpprest-dev package.")
+endif()
 
 install(TARGETS
     minimal_param_node
