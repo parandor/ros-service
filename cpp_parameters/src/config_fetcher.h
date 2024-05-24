@@ -55,6 +55,10 @@ private:
     {
         RCLCPP_INFO(this->get_logger(), "Received parameter update event: %s", msg->data.c_str());
 
+        //TODO: Here we will parse the data in the payload for demo purposes, but ideally
+        // the notification would be sent up the call stack to the consumer and then the 
+        // consumer would access the DB to fetch updated configuration parameters.
+
         // Parse the incoming data
         parseData(msg->data);
     }
