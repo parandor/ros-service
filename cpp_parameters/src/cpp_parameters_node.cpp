@@ -8,6 +8,8 @@
 
 using namespace std::chrono_literals;
 
+// For the purpose of this assignment, assume that this class is the main/top class
+// that will do most work and hold most of the contents. 
 class MinimalParam : public rclcpp::Node
 {
 public:
