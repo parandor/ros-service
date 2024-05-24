@@ -44,6 +44,7 @@ public:
         callbacks_.push_back(callback);
     }
 
+
 private:
     std::unique_ptr<http_client> client_;
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription_no_payload_;
