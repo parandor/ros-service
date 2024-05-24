@@ -102,6 +102,7 @@ private:
 
     void parameterUpdateNoPayloadCallback(const std_msgs::msg::String::SharedPtr msg)
     {
+        //TODO: Handle unused msg parameter accordingly to remove lint
         RCLCPP_INFO(this->get_logger(), "Received parameter update event");
 
         // Fetch parameters from the web server
