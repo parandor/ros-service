@@ -49,4 +49,16 @@ A sample ROS2 project and Flask web-service are provided. Please see the README 
 
 ## Trigger Configuration Update:
 
-`curl -X POST -H "Content-Type: application/json" -d '{"trigger_update": true}' http://localhost:6000/update_parameters`
+### Config Update No Payload
+
+`curl -X POST -H "Content-Type: application/json" -d '{"trigger_update": true}' http://localhost:6000/update_parameters_no_payload`
+
+### Config Update With Payload
+
+`curl -X POST -H "Content-Type: application/json" -d '{
+  "trigger_update": true,
+  "parameters": [
+    { "description": "test_parameter", "my_parameter": "from_flask" }
+  ]
+}' http://localhost:6000/update_parameters
+`

@@ -14,7 +14,7 @@ find_package(std_msgs REQUIRED)
 # Find and link against cpprestsdk library
 find_package(cpprestsdk REQUIRED)
 add_executable(minimal_param_node src/cpp_parameters_node.cpp)
-ament_target_dependencies(minimal_param_node rclcpp std_msgs cpprestsdk rclcpp_components)
+ament_target_dependencies(minimal_param_node rclcpp rclcpp_components std_msgs)
 
 find_package(OpenSSL REQUIRED)
 target_link_libraries(minimal_param_node OpenSSL::SSL OpenSSL::Crypto)
