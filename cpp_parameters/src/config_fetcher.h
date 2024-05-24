@@ -100,18 +100,6 @@ private:
         }
     }
 
-    std::vector<std::string> split(const std::string &str, char delimiter)
-    {
-        std::vector<std::string> tokens;
-        std::istringstream iss(str);
-        std::string token;
-        while (std::getline(iss, token, delimiter))
-        {
-            tokens.push_back(token);
-        }
-        return tokens;
-    }
-
     void parameterUpdateNoPayloadCallback(const std_msgs::msg::String::SharedPtr msg)
     {
         RCLCPP_INFO(this->get_logger(), "Received parameter update event");
