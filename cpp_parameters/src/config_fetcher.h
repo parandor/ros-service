@@ -152,6 +152,8 @@ private:
                                     // Output the received parameter
                                     RCLCPP_INFO(this->get_logger(), "Received parameter: %s = %s", "description", description.c_str());
                                     RCLCPP_INFO(this->get_logger(), "Received parameter: %s = %s", "my_parameter",  my_parameter.c_str());
+
+                                    // TODO: Pipe it to a callback or provide it to the target ROS node to restart and reset params.
                                 }
                                 else
                                 {

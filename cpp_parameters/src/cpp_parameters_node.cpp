@@ -25,6 +25,8 @@ public:
   }
 
 private:
+  // This timer callback is for verification for the reconfiguration success.
+  // It should show that there was a new parameter change or modification. 
   void timer_callback()
   {
     std::string my_param = this->get_parameter("my_parameter").as_string();
@@ -49,13 +51,17 @@ int main(int argc, char **argv)
 
   // Spin ConfigFetcher node on a separate thread
   std::thread updater_thread([&]()
-                              {
+                             {
                               // Register a callback with ParameterUpdater
     updater_node->registerCallback(
       [minimal_param_node](const std::string &description, const std::string &my_parameter)
       {
-        RCLCPP_INFO(minimal_param_node->get_logger(), "Updated parameter: %s = %s", description.c_str(), my_parameter.c_str());
-        minimal_param_node->set_parameter(rclcpp::Parameter(description, my_parameter));
+        // TODO: Add proper check to make sure parameters have been declared.
+        // ROS node will die if params have not been declared.
+        if("my_parameter" == description || "description" == description) {
+          minimal_param_node->set_parameter(rclcpp::Parameter(description, my_parameter));
+          RCLCPP_INFO(minimal_param_node->get_logger(), "Updated parameter: %s = %s", description.c_str(), my_parameter.c_str());
+        }
       });
         
       rclcpp::spin(updater_node); });

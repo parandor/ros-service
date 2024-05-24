@@ -58,7 +58,7 @@ A sample ROS2 project and Flask web-service are provided. Please see the README 
 `curl -X POST -H "Content-Type: application/json" -d '{
   "trigger_update": true,
   "parameters": [
-    { "description": "test_parameter", "my_parameter": "from_flask" }
+    { "my_parameter": "from_flask" }
   ]
 }' http://localhost:6000/update_parameters
 `
