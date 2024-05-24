@@ -1,4 +1,4 @@
-# Challenge: 
+# Challenge
 
 The research team have developed a new locus_ai component for our robots to detect butterflies in real-time. Parameters for the butterfly model are available on from a web-service running in the cloud. 
 
@@ -18,7 +18,7 @@ The research team have developed a new locus_ai component for our robots to dete
 
 3. **Edge Computing**: Explore edge computing solutions to offload parameter processing tasks from resource-constrained robots.
 
-# Design Assumptions:
+# Design Assumptions
 
 - Robots are resource constrained, battery powered, and on an unreliable Wi-Fi network.
 - The Flask webserver is running in the cloud, and robots are behind a NAT/firewall in a client network.
@@ -26,11 +26,11 @@ The research team have developed a new locus_ai component for our robots to dete
 - A single robot will have hundereds of nodes that will be requiring parameters
 - The client network will have multiple robots. For this scenario assume 2 robots are deployed.
 
-# Included Samples:
+# Included Samples
 
 A sample ROS2 project and Flask web-service are provided. Please see the README for execution instructions.
 
-# Guidelines:
+# Guidelines
 
 1. Please do not go too overboard with your solution, however it should try and cover the main points.
 2. Aim for completion within a couple of hours.
@@ -39,21 +39,40 @@ A sample ROS2 project and Flask web-service are provided. Please see the README 
     - Use Docker to set up and bring up individual nodes.
     - Extend design to support hundreds of robots on a client network.
 
-## Build:
+# Design
+
+![Design](docs/design.png)
+
+## Build
 
 `docker build -t ros2_service_project .`
 
-## Run:
+## Run
 
 `docker run -it --rm ros2_service_project`
+
+## How it Works
+
+Once the docker is running, it will automatically start up the Flask servers and ROS nodes.
+For this demo, there's 2 Flask servers for showcase purposes to show benefits and drawbacks and 
+how it works. Then, initiate a configuration update and send a payload, by following the next section.
+Note: The DB portion is not implemented and instead the payload is sent with Pub/Sub just for demonstration. 
 
 ## Trigger Configuration Update:
 
 ### Config Update No Payload
 
+This is a very sub optimal solution, but it's here to showcase how it may work.
+This will trigger a configuration pull request where each ROS node will pull its own configuration payload. 
+
 `curl -X POST -H "Content-Type: application/json" -d '{"trigger_update": true}' http://localhost:6000/update_parameters_no_payload`
 
 ### Config Update With Payload
+
+This is a preferred solution as it will provide the updated, versioned configuration payload, 
+and forward an update notification to each ROS node via Pub/Sub. After which, the ROS node can check if update
+is needed, query for the payload from the DB (for now the payload is sent via Pub/Sub, which is sub optimal due to comms overhead), 
+and restart if necessary.
 
 `curl -X POST -H "Content-Type: application/json" -d '{
   "trigger_update": true,
