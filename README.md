@@ -2,6 +2,12 @@
 
 The research team have developed a new locus_ai component for our robots to detect butterflies in real-time. Parameters for the butterfly model are available on from a web-service running in the cloud. 
 
+# Questions
+
+- How would you (in a few hours) extend the bringup to enable real-time reconfiguration of the detection system? 
+- What suggestions can you make for larger changes in the system architecture?
+- How do your changes make the reconfiguration process smoother or more reliable?
+
 ## How to Extend Bringup for Real-Time Reconfiguration
 
 1. **Enable Real-Time Reconfiguration**: Implement communication between the ROS 2 nodes and the web service to fetch updated parameters in real-time.
