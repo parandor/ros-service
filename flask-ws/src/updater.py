@@ -28,6 +28,10 @@ class ROSPublisher(Node):
 
 ros_publisher = ROSPublisher()
 
+def save_update_to_cache(param_update):
+    # save to database or cache (redis or similar)
+    print("save_update_to_cache")
+
 # This is an API that will provide an up to date and most recent, perhaps even versioned, 
 # configuration parameters payload. 
 @app.route('/update_parameters', methods=['POST'])
@@ -44,6 +48,9 @@ def update_parameters():
         # Convert the parameters array to a JSON string
         parameters_str = json.dumps(parameters)
         
+        #TODO: Write the parameters to database/cache for offline parameter caching.
+        save_update_to_cache(parameters_str)
+
         # Forward the entire parameters array to the ROS node
         ros_publisher.publish_update(parameters_str)
         

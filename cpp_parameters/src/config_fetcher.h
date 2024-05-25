@@ -21,7 +21,7 @@ using namespace web::http::client;
 class ConfigFetcher : public rclcpp::Node
 {
 public:
-    using UpdateCallback = std::function<void(const std::string &, const std::string &)>;
+    using UpdateCallback = std::function<void(const std::vector<rclcpp::Parameter> &parameters)>;
 
     ConfigFetcher(const rclcpp::NodeOptions &options) : Node("parameter_updater", options)
     {
@@ -39,7 +39,7 @@ public:
         client_ = std::make_unique<http_client>("http://localhost:5000", client_config);
     }
 
-    void registerCallback(UpdateCallback callback)
+    void registerParameterUpdatedCallback(UpdateCallback callback)
     {
         callbacks_.push_back(callback);
     }
@@ -90,10 +90,11 @@ private:
                     {
                         std::string value = data.substr(value_start + 1, value_end - value_start - 1); // Extract the value
 
+                        const auto vec = {rclcpp::Parameter(key, value)};
                         // Invoke registered callbacks
                         for (const auto &callback : callbacks_)
                         {
-                            callback(key, value);
+                            callback(vec);
                         }
                     }
                 }

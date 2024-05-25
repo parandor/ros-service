@@ -16,11 +16,7 @@ public:
   MinimalParam()
       : Node("minimal_param_node")
   {
-    auto param_desc = rcl_interfaces::msg::ParameterDescriptor{};
-    param_desc.description = "This parameter is mine!";
-
-    this->declare_parameter("my_parameter", "world");
-    this->declare_parameter("description", "default");
+    initializeParameters();
 
     timer_ = this->create_wall_timer(
         1000ms, std::bind(&MinimalParam::timer_callback, this));
@@ -38,6 +34,17 @@ public:
   }
 
 private:
+  void initializeParameters()
+  {
+    // load parameters from database
+
+    auto param_desc = rcl_interfaces::msg::ParameterDescriptor{};
+    param_desc.description = "This parameter is mine!";
+
+    this->declare_parameter("my_parameter", "world");
+    this->declare_parameter("description", "default");
+  }
+
   // This timer callback is for verification for the reconfiguration success.
   // It should show that there was a new parameter change or modification.
   void timer_callback()
@@ -65,16 +72,24 @@ int main(int argc, char **argv)
   // Spin ConfigFetcher node on a separate thread
   std::thread updater_thread([&]()
                              {
-                              // Register a callback with ParameterUpdater
-    updater_node->registerCallback(
-      [minimal_param_node](const std::string &description, const std::string &my_parameter)
+                               // Register a callback with ParameterUpdater
+    updater_node->registerParameterUpdatedCallback(
+      [minimal_param_node](const std::vector<rclcpp::Parameter> &parameters)
       {
-        // TODO: Add proper check to make sure parameters have been declared.
-        // ROS node will die if params have not been declared.
-        if("my_parameter" == description || "description" == description) {
-             // Check if a restart is necessary
-          if (minimal_param_node->restartNeeded(description, my_parameter))
+      // TODO: Add proper check to make sure parameters have been declared.
+      // ROS node will die if params have not been declared.
+      for (const auto &param : parameters)
+      {
+        RCLCPP_INFO(minimal_param_node->get_logger(), "%s", param.get_name());
+        if (param.get_name() == "my_parameter" || param.get_name() == "description")
+        {
+          if (param.get_type() == rclcpp::ParameterType::PARAMETER_STRING)
           {
+            auto description = param.get_name();
+            auto my_parameter = param.as_string();
+            // Check if a restart is necessary
+            if (minimal_param_node->restartNeeded(description, my_parameter))
+            {
               // Set the restart flag
               minimal_param_node->setRestartFlag();
 
@@ -86,14 +101,20 @@ int main(int argc, char **argv)
 
               // Shutdown the ROS node
               rclcpp::shutdown();
-          } else {
-            minimal_param_node->set_parameter(rclcpp::Parameter(description, my_parameter));
-            RCLCPP_INFO(minimal_param_node->get_logger(), "Updated parameter: %s = %s", description.c_str(), my_parameter.c_str());
+            }
+            else
+            {
+              // TODO: Read the configuration parameters from the database and apply.
+
+              minimal_param_node->set_parameter(rclcpp::Parameter(description, my_parameter));
+              RCLCPP_INFO(minimal_param_node->get_logger(), "Updated parameter: %s = %s", description.c_str(), my_parameter.c_str());
+            }
           }
         }
-      });
-        
-      rclcpp::spin(updater_node); });
+      } 
+    });
+
+  rclcpp::spin(updater_node); });
 
   rclcpp::spin(minimal_param_node);
   // Wait for the updater_thread to finish
