@@ -32,6 +32,7 @@ one parameter at a time per ROS Node.
 ## Reconfiguration Process Improvements
 
 1. **Event Based Reconfiguration**: The reconfiguration process is triggered in the cloud via the configuration control dashboard.
+For this demo, this is achieved using curl, described in detail below.
 The new configuration payload is dispatched to each robot, as required, and stored/updated in the database. On the robot, the flask 
 server handles the incoming request accordingly and dispatches a ROS Pub/Sub notification to each ROS node requesting a configuration update.
 Each ROS node in turn would read the database for the new configuration payload, check if a restart is required, restart, and 
