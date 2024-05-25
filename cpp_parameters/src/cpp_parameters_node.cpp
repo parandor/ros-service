@@ -80,7 +80,6 @@ int main(int argc, char **argv)
       // ROS node will die if params have not been declared.
       for (const auto &param : parameters)
       {
-        RCLCPP_INFO(minimal_param_node->get_logger(), "%s", param.get_name());
         if (param.get_name() == "my_parameter" || param.get_name() == "description")
         {
           if (param.get_type() == rclcpp::ParameterType::PARAMETER_STRING)
