@@ -19,10 +19,15 @@ The research team have developed a new locus_ai component for our robots to dete
 ## Suggestions for Larger Changes in System Architecture
 
 1. **Decentralized Parameter Management**: Distribute parameter management across multiple nodes to reduce load and improve scalability.
+Create a 1:1 mapping between ROS Node and configuration lookup table to breakdown, localize, and reduce configuration lookups and updates.
+
+For fine tuned parameter handling, including communications failure support and recovery, add AsyncParametersClient and Server support; this 
+will require a 1:1 mapping between AsyncParametersClient and every ROS Node. This *could* further reduce processing overhead by updating
+one parameter at a time per ROS Node.
 
 2. **Offline Parameter Caching**: Implement offline caching of parameters on robots to handle intermittent connectivity issues.
 
-3. **Edge Computing**: Explore edge computing solutions to offload parameter processing tasks from resource-constrained robots.
+3. **Edge Computing**: Explore edge computing solutions (Intel Atom, Arduino, etc) to offload parameter processing tasks from resource-constrained robots.
 
 ## Reconfiguration Process Improvements
 
