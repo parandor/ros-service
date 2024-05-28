@@ -9,7 +9,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <cpprest/http_client.h>
-#include <cpprest/json.h>
 #include <std_msgs/msg/string.hpp>
 
 using namespace std::chrono_literals;
